@@ -43,4 +43,4 @@ The file `ALL.chr6.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf
 
 You should see a figure like this. 
 
-![locuscompare](https://raw.githubusercontent.com/boxiangliu/locuscomparer/master/fig/locuscompare.pdf)
+![locuscompare](https://raw.githubusercontent.com/boxiangliu/locuscomparer/master/fig/locuscompare.png)
