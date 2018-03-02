@@ -29,4 +29,18 @@ rs35076156	0.625237
 
 ## 3. Example
 
-TODO: give an example and a plot. 
+To illustrate the use of locuscompare, we use the Nikpay et al. (2015) and the coronary artery eQTL dataset from GTEx. First download these example [GWAS](https://raw.githubusercontent.com/boxiangliu/locuscomparer/master/data/PHACTR1_gwas.tsv) and [eQTL](https://raw.githubusercontent.com/boxiangliu/locuscomparer/master/data/Coronary_Artery_PHACTR1_eqtl.tsv) datasets. 
+
+Then run the following commands: 
+```
+library(locuscomparer)
+gwas = read.table('PHACTR1_gwas.tsv')
+eqtl = read.table('Coronary_Artery_PHACTR1_eqtl.tsv')
+main(in_fn1 = gwas, in_fn2 = eqtl, title = 'GWAS', title2 = 'eQTL', vcf_fn = 'ALL.chr6.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz')
+```
+
+The file `ALL.chr6.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz` can be downloaded from 1000 Genomes through [FTP](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
+
+You should see a figure like this. 
+
+![locuscompare](https://raw.githubusercontent.com/boxiangliu/locuscomparer/master/fig/locuscompare.pdf)
