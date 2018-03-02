@@ -94,7 +94,7 @@ assign_color=function(rsid,snp,ld){
 }
 
 
-make_combined_plot=function(merged,title1,title2,ld,snp=NULL){
+make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE){
     if (is.null(snp)){
         snp=merged[which.min(pval1+pval2),rsid]
     } else {
@@ -113,11 +113,16 @@ make_combined_plot=function(merged,title1,title2,ld,snp=NULL){
 
     p1=make_locuscatter(merged,title1,title2,ld,color,shape,size)
     p2=make_locuszoom(merged[,list(rsid,logp=logp1,label)],title1,ld,color,shape,size)
-    p2=p2+theme(axis.text.x=element_blank(),axis.title.x=element_blank())
     p3=make_locuszoom(merged[,list(rsid,logp=logp2,label)],title2,ld,color,shape,size)
-    p4=plot_grid(p2,p3,align='v',nrow=2)
-    p5=plot_grid(p1,p4)
-    return(p5)
+    
+    if (combine){
+        p2=p2+theme(axis.text.x=element_blank(),axis.title.x=element_blank())
+        p4=plot_grid(p2,p3,align='v',nrow=2)
+        p5=plot_grid(p1,p4)
+        return(p5)
+    } else {
+        return(list(locuscompare=p1,locuszoom1=p2,locuszoom2=p3))
+    }
 }
 
 
@@ -160,7 +165,7 @@ make_locuszoom=function(metal,title,ld,color,shape,size){
 
 main=function(in_fn1,marker_col1='rsid',pval_col1='pval',title1='eQTL',
               in_fn2,marker_col2='rsid',pval_col2='pval',title2='GWAS',
-              snp=NULL,population='EUR',vcf_fn){
+              snp=NULL,population='EUR',vcf_fn,combine=TRUE){
 
     d1=read_metal(in_fn1,marker_col1,pval_col1)
     d2=read_metal(in_fn2,marker_col2,pval_col2)
@@ -172,7 +177,7 @@ main=function(in_fn1,marker_col1='rsid',pval_col1='pval',title1='eQTL',
     merged = get_position(vcf_in = sub_vcf_fn,x = merged)
     ld = calc_LD(rsid = merged$rsid, vcf_in = sub_vcf_fn)
 
-    p=make_combined_plot(merged,title1,title2,ld,snp)
+    p=make_combined_plot(merged,title1,title2,ld,snp,combine=combine)
     return(p)
 }
 
