@@ -27,7 +27,25 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
     return(d)
 }
 
+read_full_metal=function(in_fn,marker_col='rsid',pval_col='pval',a1_col,a2_col,effect_col,se_col){
+    if (is.character(in_fn)){
+        if (grepl('.gz',in_fn)){
+            d=fread(sprintf('gunzip -c %s',in_fn))
+        } else {
+            d=fread(in_fn)
+        }
 
+        setnames(d,c(marker_col,a1_col,a2_col,effect_col,se_col,pval_col),c('rsid','a1','a2','effect','se','pval'))
+
+    } else if (is.data.frame(in_fn)){
+        d=in_fn
+    } else {
+        stop('in_fn must be a string or a data.frame')
+    }
+    setDT(d)
+    d=d[,list(rsid,a1,a2,effect,se,pval,logp=-log10(pval))]
+    return(d)
+}
 extract_population=function(population,
                             out_file,
                             panel='/srv/persistent/bliu2/shared/1000genomes/phase3v5a/integrated_call_samples_v3.20130502.ALL.panel'){
@@ -114,7 +132,7 @@ make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE){
     p1=make_locuscatter(merged,title1,title2,ld,color,shape,size)
     p2=make_locuszoom(merged[,list(rsid,logp=logp1,label)],title1,ld,color,shape,size)
     p3=make_locuszoom(merged[,list(rsid,logp=logp2,label)],title2,ld,color,shape,size)
-    
+
     if (combine){
         p2=p2+theme(axis.text.x=element_blank(),axis.title.x=element_blank())
         p4=plot_grid(p2,p3,align='v',nrow=2)
