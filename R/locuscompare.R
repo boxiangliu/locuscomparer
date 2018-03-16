@@ -82,6 +82,19 @@ get_position=function(vcf_in,x){
     return(x)
 }
 
+get_rsid=function(vcf_in,x){
+    y = read.table(
+        file = vcf_in,
+        header = FALSE,
+        stringsAsFactors = FALSE
+        )[,1:3]
+    colnames(y) = c('chr','pos','rsid')
+
+    stopifnot(all(c('chr','pos') %in% colnames(x)))
+    x = merge(x,y,by=c('chr','pos'))
+    return(x)
+}
+
 calc_LD=function(rsid,vcf_in){
     out_fn_prefix=tempfile()
     out_fn=sprintf('%s.ld',out_fn_prefix)
