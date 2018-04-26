@@ -112,7 +112,7 @@ assign_color=function(rsid,snp,ld){
 }
 
 
-make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE){
+make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE,legend=TRUE){
     if (is.null(snp)){
         snp=merged[which.min(pval1+pval2),rsid]
     } else {
@@ -129,7 +129,7 @@ make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE){
     names(size)=merged$rsid
     merged[,label:=ifelse(rsid==snp,rsid,'')]
 
-    p1=make_locuscatter(merged,title1,title2,ld,color,shape,size)
+    p1=make_locuscatter(merged,title1,title2,ld,color,shape,size,legend)
     p2=make_locuszoom(merged[,list(rsid,logp=logp1,label)],title1,ld,color,shape,size)
     p3=make_locuszoom(merged[,list(rsid,logp=logp2,label)],title2,ld,color,shape,size)
 
@@ -144,25 +144,28 @@ make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE){
 }
 
 
-make_locuscatter=function(merged,title1,title2,ld,color,shape,size){
+make_locuscatter=function(merged,title1,title2,ld,color,shape,size,legend=TRUE){
     p=ggplot(merged,aes(logp1,logp2))+
         geom_point(aes(fill=rsid,size=rsid,shape=rsid),alpha=0.8)+
         geom_point(data=merged[label!=''],aes(logp1,logp2,fill=rsid,size=rsid,shape=rsid))+
-        xlab(paste(title1,' -log10(P)'))+ylab(paste(title2,' -log10(P)'))+
+        xlab(bquote(.(title1)~-log[10](P)))+ylab(bquote(.(title1)~-log[10](P)))+
         scale_fill_manual(values=color,guide='none')+
         scale_shape_manual(values=shape,guide='none')+
         scale_size_manual(values=size,guide='none')+
         geom_text_repel(aes(label=label))
 
-    legend_box=data.frame(x=0.8,y=seq(0.4,0.2,-0.05))
-    p1=ggdraw(p)+geom_rect(data=legend_box,aes(xmin=x,xmax=x+0.05,ymin=y,ymax=y+0.05),color='black',fill=rev(c('blue4','skyblue','darkgreen','orange','red')))+
-        draw_label('0.8',x=legend_box$x[1]+0.05,y=legend_box$y[1],hjust=-0.3,size=10)+
-        draw_label('0.6',x=legend_box$x[2]+0.05,y=legend_box$y[2],hjust=-0.3,size=10)+
-        draw_label('0.4',x=legend_box$x[3]+0.05,y=legend_box$y[3],hjust=-0.3,size=10)+
-        draw_label('0.2',x=legend_box$x[4]+0.05,y=legend_box$y[4],hjust=-0.3,size=10)+
-        draw_label(parse(text='r^2'),x=legend_box$x[1]+0.05,y=legend_box$y[1],vjust=-2.0,size=10)
-
-    return(p1)
+    if (legend==TRUE){
+        legend_box=data.frame(x=0.8,y=seq(0.4,0.2,-0.05))
+        p=ggdraw(p)+geom_rect(data=legend_box,aes(xmin=x,xmax=x+0.05,ymin=y,ymax=y+0.05),color='black',fill=rev(c('blue4','skyblue','darkgreen','orange','red')))+
+            draw_label('0.8',x=legend_box$x[1]+0.05,y=legend_box$y[1],hjust=-0.3,size=10)+
+            draw_label('0.6',x=legend_box$x[2]+0.05,y=legend_box$y[2],hjust=-0.3,size=10)+
+            draw_label('0.4',x=legend_box$x[3]+0.05,y=legend_box$y[3],hjust=-0.3,size=10)+
+            draw_label('0.2',x=legend_box$x[4]+0.05,y=legend_box$y[4],hjust=-0.3,size=10)+
+            draw_label(parse(text='r^2'),x=legend_box$x[1]+0.05,y=legend_box$y[1],vjust=-2.0,size=10)
+    } else {
+        NULL
+    }
+    return(p)
 }
 
 make_locuszoom=function(metal,title,ld,color,shape,size){
@@ -177,13 +180,13 @@ make_locuszoom=function(metal,title,ld,color,shape,size){
         scale_x_continuous(labels=function(x){sprintf('%.1f',x/1e6)})+
         geom_text_repel(aes(label=label))+
         xlab(paste0('chr',chr,' (Mb)'))+
-        ylab(paste(title,'\n-log10(P)'))+
+        ylab(bquote(.(title)~-log[10](P)))+
         theme(plot.margin=unit(c(0.5, 1, 0.5, 0.5), "lines"))
 }
 
 main=function(in_fn1,marker_col1='rsid',pval_col1='pval',title1='eQTL',
               in_fn2,marker_col2='rsid',pval_col2='pval',title2='GWAS',
-              snp=NULL,population='EUR',vcf_fn,combine=TRUE){
+              snp=NULL,population='EUR',vcf_fn,combine=TRUE,legend=TRUE){
 
     d1=read_metal(in_fn1,marker_col1,pval_col1)
     d2=read_metal(in_fn2,marker_col2,pval_col2)
@@ -195,7 +198,7 @@ main=function(in_fn1,marker_col1='rsid',pval_col1='pval',title1='eQTL',
     merged = get_position(vcf_in = sub_vcf_fn,x = merged)
     ld = calc_LD(rsid = merged$rsid, vcf_in = sub_vcf_fn)
 
-    p=make_combined_plot(merged,title1,title2,ld,snp,combine=combine)
+    p=make_combined_plot(merged,title1,title2,ld,snp,combine,legend)
     return(p)
 }
 
