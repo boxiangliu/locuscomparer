@@ -161,7 +161,7 @@ make_locuscatter=function(merged,title1,title2,ld,color,shape,size,legend=TRUE){
     p=ggplot(merged,aes(logp1,logp2))+
         geom_point(aes(fill=rsid,size=rsid,shape=rsid),alpha=0.8)+
         geom_point(data=merged[label!=''],aes(logp1,logp2,fill=rsid,size=rsid,shape=rsid))+
-        xlab(bquote(.(title1)~-log[10](P)))+ylab(bquote(.(title2)~-log[10](P)))+
+        xlab(bquote(.(title1)~-log[10]*P))+ylab(bquote(.(title2)~-log[10]*P))+
         scale_fill_manual(values=color,guide='none')+
         scale_shape_manual(values=shape,guide='none')+
         scale_size_manual(values=size,guide='none')+
@@ -193,7 +193,7 @@ make_locuszoom=function(metal,title,ld,color,shape,size){
         scale_x_continuous(labels=function(x){sprintf('%.1f',x/1e6)})+
         geom_text_repel(aes(label=label))+
         xlab(paste0('chr',chr,' (Mb)'))+
-        ylab(bquote(.(title)~-log[10](P)))+
+        ylab(bquote(.(title)~-log[10]*P))+
         theme(plot.margin=unit(c(0.5, 1, 0.5, 0.5), "lines"))
 }
 
