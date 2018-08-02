@@ -125,57 +125,71 @@ assign_color=function(rsid,snp,ld){
 }
 
 
-make_combined_plot=function(merged,title1,title2,ld,snp=NULL,combine=TRUE,legend=TRUE){
-    if (is.null(snp)){
-        snp=merged[which.min(pval1+pval2),rsid]
-    } else {
-        if(!snp%in%merged$rsid){
-            stop(sprintf('%s not found in %s',snp,in_fn1))
+make_combined_plot = function (merged, title1, title2, ld, snp = NULL, combine = TRUE,
+                               legend = TRUE, legend_position = c('bottomright','topright','topleft')) {
+    if (is.null(snp)) {
+        snp = merged[which.min(pval1 + pval2), rsid]
+    }
+    else {
+        if (!snp %in% merged$rsid) {
+            stop(sprintf("%s not found in %s", snp, in_fn1))
         }
     }
-    print(sprintf('INFO - %s',snp))
-
-    color=assign_color(merged$rsid,snp,ld)
-    shape=ifelse(merged$rsid==snp,23,21)
-    names(shape)=merged$rsid
-    size=ifelse(merged$rsid==snp,3,2)
-    names(size)=merged$rsid
-    merged[,label:=ifelse(rsid==snp,rsid,'')]
-
-    p1=make_locuscatter(merged,title1,title2,ld,color,shape,size,legend)
-    p2=make_locuszoom(merged[,list(rsid,logp=logp1,label)],title1,ld,color,shape,size)
-    p3=make_locuszoom(merged[,list(rsid,logp=logp2,label)],title2,ld,color,shape,size)
-
-    if (combine){
-        p2=p2+theme(axis.text.x=element_blank(),axis.title.x=element_blank())
-        p4=plot_grid(p2,p3,align='v',nrow=2)
-        p5=plot_grid(p1,p4)
+    print(sprintf("INFO - %s", snp))
+    color = assign_color(merged$rsid, snp, ld)
+    shape = ifelse(merged$rsid == snp, 23, 21)
+    names(shape) = merged$rsid
+    size = ifelse(merged$rsid == snp, 3, 2)
+    names(size) = merged$rsid
+    merged[, `:=`(label, ifelse(rsid == snp, rsid, ""))]
+    p1 = make_locuscatter(merged, title1, title2, ld, color,
+                          shape, size, legend, legend_position)
+    p2 = make_locuszoom(merged[, list(rsid, logp = logp1, label)],
+                        title1, ld, color, shape, size)
+    p3 = make_locuszoom(merged[, list(rsid, logp = logp2, label)],
+                        title2, ld, color, shape, size)
+    if (combine) {
+        p2 = p2 + theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+        p4 = plot_grid(p2, p3, align = "v", nrow = 2)
+        p5 = plot_grid(p1, p4)
         return(p5)
-    } else {
-        return(list(locuscompare=p1,locuszoom1=p2,locuszoom2=p3))
+    }
+    else {
+        return(list(locuscompare = p1, locuszoom1 = p2, locuszoom2 = p3))
     }
 }
 
-
-make_locuscatter=function(merged,title1,title2,ld,color,shape,size,legend=TRUE){
-    p=ggplot(merged,aes(logp1,logp2))+
-        geom_point(aes(fill=rsid,size=rsid,shape=rsid),alpha=0.8)+
-        geom_point(data=merged[label!=''],aes(logp1,logp2,fill=rsid,size=rsid,shape=rsid))+
-        xlab(bquote(.(title1)~-log[10]*P))+ylab(bquote(.(title2)~-log[10]*P))+
-        scale_fill_manual(values=color,guide='none')+
-        scale_shape_manual(values=shape,guide='none')+
-        scale_size_manual(values=size,guide='none')+
-        geom_text_repel(aes(label=label))
-
-    if (legend==TRUE){
-        legend_box=data.frame(x=0.8,y=seq(0.4,0.2,-0.05))
-        p=ggdraw(p)+geom_rect(data=legend_box,aes(xmin=x,xmax=x+0.05,ymin=y,ymax=y+0.05),color='black',fill=rev(c('blue4','skyblue','darkgreen','orange','red')))+
-            draw_label('0.8',x=legend_box$x[1]+0.05,y=legend_box$y[1],hjust=-0.3,size=10)+
-            draw_label('0.6',x=legend_box$x[2]+0.05,y=legend_box$y[2],hjust=-0.3,size=10)+
-            draw_label('0.4',x=legend_box$x[3]+0.05,y=legend_box$y[3],hjust=-0.3,size=10)+
-            draw_label('0.2',x=legend_box$x[4]+0.05,y=legend_box$y[4],hjust=-0.3,size=10)+
-            draw_label(parse(text='r^2'),x=legend_box$x[1]+0.05,y=legend_box$y[1],vjust=-2.0,size=10)
-    } else {
+make_locuscatter = function (merged, title1, title2, ld, color, shape, size, legend = TRUE, legend_position = c('bottomright','topright','topleft')) {
+    p = ggplot(merged, aes(logp1, logp2)) + geom_point(aes(fill = rsid,
+                                                           size = rsid, shape = rsid), alpha = 0.8) + geom_point(data = merged[label !=
+                                                                                                                                   ""], aes(logp1, logp2, fill = rsid, size = rsid, shape = rsid)) +
+        xlab(bquote(.(title1) ~ -log[10] * P)) + ylab(bquote(.(title2) ~
+                                                                 -log[10] * P)) + scale_fill_manual(values = color, guide = "none") +
+        scale_shape_manual(values = shape, guide = "none") +
+        scale_size_manual(values = size, guide = "none") + geom_text_repel(aes(label = label))
+    if (legend == TRUE) {
+        legend_position = match.arg(legend_position)
+        if (legend_position == 'bottomright'){
+            legend_box = data.frame(x = 0.8, y = seq(0.4, 0.2, -0.05))
+        } else if (legend_position == 'topright'){
+            legend_box = data.frame(x = 0.8, y = seq(0.8, 0.6, -0.05))
+        } else {
+            legend_box = data.frame(x = 0.2, y = seq(0.8, 0.6, -0.05))
+        }
+        p = ggdraw(p) + geom_rect(data = legend_box, aes(xmin = x,
+                                                         xmax = x + 0.05, ymin = y, ymax = y + 0.05), color = "black",
+                                  fill = rev(c("blue4", "skyblue", "darkgreen", "orange",
+                                               "red"))) + draw_label("0.8", x = legend_box$x[1] +
+                                                                         0.05, y = legend_box$y[1], hjust = -0.3, size = 10) +
+            draw_label("0.6", x = legend_box$x[2] + 0.05, y = legend_box$y[2],
+                       hjust = -0.3, size = 10) + draw_label("0.4",
+                                                             x = legend_box$x[3] + 0.05, y = legend_box$y[3],
+                                                             hjust = -0.3, size = 10) + draw_label("0.2", x = legend_box$x[4] +
+                                                                                                       0.05, y = legend_box$y[4], hjust = -0.3, size = 10) +
+            draw_label(parse(text = "r^2"), x = legend_box$x[1] +
+                           0.05, y = legend_box$y[1], vjust = -2, size = 10)
+    }
+    else {
         NULL
     }
     return(p)
@@ -197,21 +211,21 @@ make_locuszoom=function(metal,title,ld,color,shape,size){
         theme(plot.margin=unit(c(0.5, 1, 0.5, 0.5), "lines"))
 }
 
-main=function(in_fn1,marker_col1='rsid',pval_col1='pval',title1='eQTL',
-              in_fn2,marker_col2='rsid',pval_col2='pval',title2='GWAS',
-              snp=NULL,population='EUR',vcf_fn,combine=TRUE,legend=TRUE){
-
-    d1=read_metal(in_fn1,marker_col1,pval_col1)
-    d2=read_metal(in_fn2,marker_col2,pval_col2)
-
-    merged=merge(d1,d2,by='rsid',suffixes=c('1','2'),all=FALSE)
-
+main = function (in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQTL",
+                 in_fn2, marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
+                 snp = NULL, population = "EUR", vcf_fn, combine = TRUE, legend = TRUE,
+                 legend_position = c('bottomright','topright','topleft')) {
+    d1 = read_metal(in_fn1, marker_col1, pval_col1)
+    d2 = read_metal(in_fn2, marker_col2, pval_col2)
+    merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"),
+                   all = FALSE)
     sub_vcf_prefix = tempfile()
-    sub_vcf_fn = subset_vcf(vcf_in = vcf_fn, rsid = merged$rsid, population = population, vcf_out_prefix = sub_vcf_prefix)
-    merged = get_position(vcf_in = sub_vcf_fn,x = merged)
+    sub_vcf_fn = subset_vcf(vcf_in = vcf_fn, rsid = merged$rsid,
+                            population = population, vcf_out_prefix = sub_vcf_prefix)
+    merged = get_position(vcf_in = sub_vcf_fn, x = merged)
     ld = calc_LD(rsid = merged$rsid, vcf_in = sub_vcf_fn)
-
-    p=make_combined_plot(merged,title1,title2,ld,snp,combine,legend)
+    p = make_combined_plot(merged, title1, title2, ld, snp, combine,
+                           legend, legend_position)
     return(p)
 }
 
