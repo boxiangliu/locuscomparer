@@ -126,7 +126,7 @@ assign_color=function(rsid,snp,ld){
 
 
 make_combined_plot = function (merged, title1, title2, ld, snp = NULL, combine = TRUE,
-                               legend = TRUE, legend_position = c('bottomright','topright','topleft')) {
+                               legend = TRUE, legend_position = c('bottomright','topright','topleft'),lz_ylab_linebreak=FALSE) {
     if (is.null(snp)) {
         snp = merged[which.min(pval1 + pval2), rsid]
     }
@@ -145,12 +145,12 @@ make_combined_plot = function (merged, title1, title2, ld, snp = NULL, combine =
     p1 = make_locuscatter(merged, title1, title2, ld, color,
                           shape, size, legend, legend_position)
     p2 = make_locuszoom(merged[, list(rsid, logp = logp1, label)],
-                        title1, ld, color, shape, size)
+                        title1, ld, color, shape, size, lz_ylab_linebreak)
     p3 = make_locuszoom(merged[, list(rsid, logp = logp2, label)],
-                        title2, ld, color, shape, size)
+                        title2, ld, color, shape, size, lz_ylab_linebreak)
     if (combine) {
         p2 = p2 + theme(axis.text.x = element_blank(), axis.title.x = element_blank())
-        p4 = plot_grid(p2, p3, align = "v", nrow = 2)
+        p4 = plot_grid(p2, p3, align = "v", nrow = 2, rel_heights=c(0.8,1))
         p5 = plot_grid(p1, p4)
         return(p5)
     }
@@ -195,10 +195,10 @@ make_locuscatter = function (merged, title1, title2, ld, color, shape, size, leg
     return(p)
 }
 
-make_locuszoom=function(metal,title,ld,color,shape,size){
+make_locuszoom=function(metal,title,ld,color,shape,size,ylab_linebreak=FALSE){
     data=merge(metal,unique(ld[,list(chr=CHR_A,pos=BP_A,rsid=SNP_A)]),by='rsid')
     chr=unique(data$chr)
-    ggplot(data,aes(x=pos,logp))+
+    p = ggplot(data,aes(x=pos,logp))+
         geom_point(aes(fill=rsid,size=rsid,shape=rsid),alpha=0.8)+
         geom_point(data=data[label!=''],aes(x=pos,logp,fill=rsid,size=rsid,shape=rsid))+
         scale_fill_manual(values=color,guide='none')+
@@ -209,12 +209,17 @@ make_locuszoom=function(metal,title,ld,color,shape,size){
         xlab(paste0('chr',chr,' (Mb)'))+
         ylab(bquote(.(title)~-log[10]*'(P)'))+
         theme(plot.margin=unit(c(0.5, 1, 0.5, 0.5), "lines"))
+    if (ylab_linebreak==TRUE){
+        p = p + ylab(bquote(atop(.(title),-log[10]*'(P)')))
+    }
+    return(p)
 }
 
 main = function (in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQTL",
                  in_fn2, marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
                  snp = NULL, population = "EUR", vcf_fn, combine = TRUE, legend = TRUE,
-                 legend_position = c('bottomright','topright','topleft')) {
+                 legend_position = c('bottomright','topright','topleft'),
+                 lz_ylab_linebreak = FALSE) {
     d1 = read_metal(in_fn1, marker_col1, pval_col1)
     d2 = read_metal(in_fn2, marker_col2, pval_col2)
     merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"),
@@ -225,7 +230,7 @@ main = function (in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQT
     merged = get_position(vcf_in = sub_vcf_fn, x = merged)
     ld = calc_LD(rsid = merged$rsid, vcf_in = sub_vcf_fn)
     p = make_combined_plot(merged, title1, title2, ld, snp, combine,
-                           legend, legend_position)
+                           legend, legend_position, lz_ylab_linebreak)
     return(p)
 }
 
