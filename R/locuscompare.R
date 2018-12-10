@@ -1,38 +1,35 @@
 # Make locuscatter plots
 # Boxiang Liu
 # 2017-12-07
-library(R.utils)
-library(data.table)
-library(cowplot)
-library(ggrepel)
-library(stringr)
+
 
 read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
     if (is.character(in_fn)){
         if (grepl('.gz',in_fn)){
-            d=fread(sprintf('gunzip -c %s',in_fn))
+            d = data.table::fread(sprintf('gunzip -c %s',in_fn))
         } else {
-            d=fread(in_fn)
+            d = data.table::fread(in_fn)
         }
 
         setnames(d,c(marker_col,pval_col),c('rsid','pval'))
 
     } else if (is.data.frame(in_fn)){
-        d=in_fn
+        d = in_fn
     } else {
-        stop('in_fn must be a string or a data.frame')
+        stop('The argument "in_fn" must be a string or a data.frame')
     }
+
     setDT(d)
-    d=d[,list(rsid,pval,logp=-log10(pval))]
+    d = d[,list(rsid,pval,logp=-log10(pval))]
     return(d)
 }
 
 read_full_metal=function(in_fn,marker_col='rsid',pval_col='pval',a1_col,a2_col,effect_col,se_col){
     if (is.character(in_fn)){
         if (grepl('.gz',in_fn)){
-            d=fread(sprintf('gunzip -c %s',in_fn))
+            d=data.table::fread(sprintf('gunzip -c %s',in_fn))
         } else {
-            d=fread(in_fn)
+            d=data.table::fread(in_fn)
         }
 
         setnames(d,c(marker_col,a1_col,a2_col,effect_col,se_col,pval_col),c('rsid','a1','a2','effect','se','pval'))
@@ -46,10 +43,11 @@ read_full_metal=function(in_fn,marker_col='rsid',pval_col='pval',a1_col,a2_col,e
     d=d[,list(rsid,a1,a2,effect,se,pval,logp=-log10(pval))]
     return(d)
 }
+
 extract_population=function(population,
                             out_file,
                             panel='/srv/persistent/bliu2/shared/1000genomes/phase3v5a/integrated_call_samples_v3.20130502.ALL.panel'){
-    panel=fread(panel)
+    panel=data.table::fread(panel)
     x=panel[super_pop==population,list(sample,sample)]
     fwrite(x,out_file,sep='\t',col.names=FALSE)
 }
@@ -103,7 +101,7 @@ calc_LD=function(rsid,vcf_in){
     print(command)
     system(command)
 
-    ld=fread(out_fn)
+    ld=data.table::fread(out_fn)
     ld2=ld[,list(CHR_A=CHR_B,BP_A=BP_B,SNP_A=SNP_B,CHR_B=CHR_A,BP_B=BP_A,SNP_B=SNP_A,R2)]
     ld=rbind(ld,ld2)
     return(ld)
