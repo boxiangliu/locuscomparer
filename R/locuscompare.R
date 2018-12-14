@@ -1,8 +1,10 @@
 # Make locuscatter plots
 # Boxiang Liu
 # 2017-12-07
+#' @import cowplot
+#' @importFrom data.table data.table
 
-
+#' @export
 read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
     if (is.character(in_fn)){
         if (grepl('.gz',in_fn)){
@@ -11,7 +13,7 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
             d = data.table::fread(in_fn)
         }
 
-        setnames(d,c(marker_col,pval_col),c('rsid','pval'))
+        data.table::setnames(d,c(marker_col,pval_col),c('rsid','pval'))
 
     } else if (is.data.frame(in_fn)){
         d = in_fn
@@ -19,120 +21,67 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
         stop('The argument "in_fn" must be a string or a data.frame')
     }
 
-    setDT(d)
+    data.table::setDT(d)
     d = d[,list(rsid,pval,logp=-log10(pval))]
     return(d)
 }
 
-read_full_metal=function(in_fn,marker_col='rsid',pval_col='pval',a1_col,a2_col,effect_col,se_col){
-    if (is.character(in_fn)){
-        if (grepl('.gz',in_fn)){
-            d=data.table::fread(sprintf('gunzip -c %s',in_fn))
-        } else {
-            d=data.table::fread(in_fn)
-        }
+#' @export
+retrieve_LD = function(chr,snp,population){
+    data(config)
+    on.exit(rm(config))
 
-        setnames(d,c(marker_col,a1_col,a2_col,effect_col,se_col,pval_col),c('rsid','a1','a2','effect','se','pval'))
+    conn = RMySQL::dbConnect(RMySQL::MySQL(),"locuscompare",config$b,config$c,config$a)
+    on.exit(RMySQL::dbDisconnect(conn))
 
-    } else if (is.data.frame(in_fn)){
-        d=in_fn
-    } else {
-        stop('in_fn must be a string or a data.frame')
-    }
-    setDT(d)
-    d=d[,list(rsid,a1,a2,effect,se,pval,logp=-log10(pval))]
-    return(d)
+    res1 = DBI::dbGetQuery(
+        conn = conn,
+        statement = sprintf(
+            "select SNP_A, SNP_B, R2
+            from tkg_p3v5a_ld_chr%s_%s
+            where SNP_A = '%s';",
+            chr,
+            population,
+            snp
+        )
+    )
+
+    res2 = DBI::dbGetQuery(
+        conn = conn,
+        statement = sprintf(
+            "select SNP_B as SNP_A, SNP_A as SNP_B, R2
+            from tkg_p3v5a_ld_chr%s_%s
+            where SNP_B = '%s';",
+            chr,
+            population,
+            snp
+        )
+    )
+
+    res = rbind(res1,res2)
+    data.table::setDT(res)
+    return(res)
 }
 
-extract_population=function(population,
-                            out_file,
-                            panel='/srv/persistent/bliu2/shared/1000genomes/phase3v5a/integrated_call_samples_v3.20130502.ALL.panel'){
-    panel=data.table::fread(panel)
-    x=panel[super_pop==population,list(sample,sample)]
-    fwrite(x,out_file,sep='\t',col.names=FALSE)
-}
-
-
-subset_vcf=function(vcf_in,rsid,population,vcf_out_prefix){
-    pop_fn=system.file('extdata/population/',sprintf('%s.txt',population),package = 'locuscomparer')
-    out_dir=tempdir()
-    rsid_fn=sprintf('%s/rsid.txt',out_dir)
-
-    write.table(rsid,rsid_fn,sep='\t',col.names=FALSE,row.names=FALSE,quote=FALSE)
-
-    command=sprintf('plink --vcf %s --keep-allele-order --keep %s --extract %s --recode vcf-iid --out %s',vcf_in,pop_fn,rsid_fn,vcf_out_prefix)
-    print(command)
-    system(command)
-    vcf_out = sprintf('%s.vcf',vcf_out_prefix)
-    return(vcf_out)
-}
-
-get_position=function(vcf_in,x){
-    y = read.table(
-        file = vcf_in,
-        header = FALSE,
-        stringsAsFactors = FALSE
-        )[,1:3]
-    colnames(y) = c('chr','pos','rsid')
-
-    stopifnot('rsid' %in% colnames(x))
-    x = merge(x,y,by='rsid')
-    return(x)
-}
-
-get_rsid=function(vcf_in,x){
-    y = read.table(
-        file = vcf_in,
-        header = FALSE,
-        stringsAsFactors = FALSE
-        )[,1:3]
-    colnames(y) = c('chr','pos','rsid')
-
-    stopifnot(all(c('chr','pos') %in% colnames(x)))
-    x = merge(x,y,by=c('chr','pos'))
-    return(x)
-}
-
-calc_LD=function(rsid,vcf_in){
-    out_fn_prefix=tempfile()
-    out_fn=sprintf('%s.ld',out_fn_prefix)
-
-    command=sprintf('plink --vcf %s --keep-allele-order --r2 --ld-window 9999999 --ld-window-kb 9999999 --out %s',vcf_in,out_fn_prefix)
-    print(command)
-    system(command)
-
-    ld=data.table::fread(out_fn)
-    ld2=ld[,list(CHR_A=CHR_B,BP_A=BP_B,SNP_A=SNP_B,CHR_B=CHR_A,BP_B=BP_A,SNP_B=SNP_A,R2)]
-    ld=rbind(ld,ld2)
-    return(ld)
-}
-
-
+#' @export
 assign_color=function(rsid,snp,ld){
     all_snps=unique(ld$SNP_A)
-
     color_dt=ld[SNP_A==snp,list(rsid=SNP_B,color=cut(R2,breaks=c(0,0.2,0.4,0.6,0.8,1),
                                                      labels=c('blue4','skyblue','darkgreen','orange','red'),
+
                                                      include.lowest=TRUE))]
     color_dt=rbind(color_dt,data.table(rsid=all_snps[!all_snps%in%color_dt$rsid],color='blue4'))
-    color_dt=rbind(color_dt,data.table(rsid=rsid[!rsid%in%all_snps],color='grey'))
     color_dt[rsid==snp,color:='purple']
+    color_dt=rbind(color_dt,data.table(rsid=rsid[!rsid%in%all_snps],color='grey'))
     color=as.character(color_dt$color)
     names(color)=color_dt$rsid
     return(color)
 }
 
-
+#' @export
 make_combined_plot = function (merged, title1, title2, ld, snp = NULL, combine = TRUE,
                                legend = TRUE, legend_position = c('bottomright','topright','topleft'),lz_ylab_linebreak=FALSE) {
-    if (is.null(snp)) {
-        snp = merged[which.min(pval1 + pval2), rsid]
-    }
-    else {
-        if (!snp %in% merged$rsid) {
-            stop(sprintf("%s not found in %s", snp, in_fn1))
-        }
-    }
+    snp = get_lead_snp(merged, snp)
     print(sprintf("INFO - %s", snp))
     color = assign_color(merged$rsid, snp, ld)
     shape = ifelse(merged$rsid == snp, 23, 21)
@@ -157,6 +106,7 @@ make_combined_plot = function (merged, title1, title2, ld, snp = NULL, combine =
     }
 }
 
+#' @export
 make_locuscatter = function (merged, title1, title2, ld, color, shape, size, legend = TRUE, legend_position = c('bottomright','topright','topleft')) {
     p = ggplot(merged, aes(logp1, logp2)) + geom_point(aes(fill = rsid,
                                                            size = rsid, shape = rsid), alpha = 0.8) + geom_point(data = merged[label !=
@@ -193,6 +143,7 @@ make_locuscatter = function (merged, title1, title2, ld, color, shape, size, leg
     return(p)
 }
 
+#' @export
 make_locuszoom=function(metal,title,ld,color,shape,size,ylab_linebreak=FALSE){
     data=merge(metal,unique(ld[,list(chr=CHR_A,pos=BP_A,rsid=SNP_A)]),by='rsid')
     chr=unique(data$chr)
@@ -213,6 +164,29 @@ make_locuszoom=function(metal,title,ld,color,shape,size,ylab_linebreak=FALSE){
     return(p)
 }
 
+
+#' @export
+get_lead_snp = function(merged, snp = NULL){
+    if (is.null(snp)) {
+        snp = merged[which.min(pval1 + pval2), rsid]
+    }
+    else {
+        if (!snp %in% merged$rsid) {
+            stop(sprintf("%s not found in the intersection of %s and %s", snp, in_fn1, in_fn2))
+        }
+    }
+    return(snp)
+}
+
+in_fn1 = system.file('extdata','gwas.tsv', package = 'locuscomparer')
+in_fn2 = system.file('extdata','eqtl.tsv', package = 'locuscomparer')
+marker_col1 = marker_col2 = 'rsid'
+pval_col1 = pval_col2 = 'pval'
+chr='6'
+snp = NULL
+population = 'EUR'
+
+#' @export
 main = function (in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQTL",
                  in_fn2, marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
                  snp = NULL, population = "EUR", vcf_fn, combine = TRUE, legend = TRUE,
@@ -220,13 +194,9 @@ main = function (in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQT
                  lz_ylab_linebreak = FALSE) {
     d1 = read_metal(in_fn1, marker_col1, pval_col1)
     d2 = read_metal(in_fn2, marker_col2, pval_col2)
-    merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"),
-                   all = FALSE)
-    sub_vcf_prefix = tempfile()
-    sub_vcf_fn = subset_vcf(vcf_in = vcf_fn, rsid = merged$rsid,
-                            population = population, vcf_out_prefix = sub_vcf_prefix)
-    merged = get_position(vcf_in = sub_vcf_fn, x = merged)
-    ld = calc_LD(rsid = merged$rsid, vcf_in = sub_vcf_fn)
+    merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
+    snp = get_lead_snp(merged, snp)
+    ld = retrieve_LD(chr, snp, population)
     p = make_combined_plot(merged, title1, title2, ld, snp, combine,
                            legend, legend_position, lz_ylab_linebreak)
     return(p)

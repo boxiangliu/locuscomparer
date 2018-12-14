@@ -18,3 +18,4 @@ Imports: cowplot (>= 0.6.1),
     ggrepel (>= 0.6.5),
     R.utils (>= 2.6.0),
     stringr (>= 1.2.0)
+RoxygenNote: 6.0.1
