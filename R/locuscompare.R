@@ -10,7 +10,7 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
 
     if (is.character(in_fn)){
 
-        d = read.table(in_fn, header = TRUE)
+        d = read.table(in_fn, header = TRUE, stringsAsFactors = FALSE)
         colnames(d)[which(colnames(d) == marker_col)] = 'rsid'
         colnames(d)[which(colnames(d) == pval_col)] = 'pval'
 

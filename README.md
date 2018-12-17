@@ -10,11 +10,7 @@ Use the following commands to install LocusCompareR:
 install.packages("devtools")
 library(devtools)
 install_github("boxiangliu/locuscomparer")
-library(locuscomparer)
 ```
-
-In addition, you will need to install [`plink`](https://www.cog-genomics.org/plink2). You will also need to download [1000 Genomes genotypes](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/) for LD calculation. You can run this [file](https://raw.githubusercontent.com/boxiangliu/locuscomparer/master/src/download_1000g.sh) to download the 1000 Genomes genotypes. Note that they are very large. 
-
 
 ## 2. Input 
 The input format to locuscompare is a two-column tab-delimited text file. Here is an example file:
@@ -34,9 +30,9 @@ To illustrate the use of locuscompare, we use the Nikpay et al. (2015) and the c
 Then run the following commands: 
 ```
 library(locuscomparer)
-gwas = read.table('PHACTR1_gwas.tsv')
-eqtl = read.table('Coronary_Artery_PHACTR1_eqtl.tsv')
-main(in_fn1 = gwas, in_fn2 = eqtl, title = 'GWAS', title2 = 'eQTL', vcf_fn = 'ALL.chr6.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz')
+gwas_fn = system.file('extdata','gwas.tsv', package = 'locuscomparer')
+eqtl_fn = system.file('extdata','eqtl.tsv', package = 'locuscomparer')
+main(in_fn1 = gwas_fn, in_fn2 = eqtl_fn, title = 'GWAS', title2 = 'eQTL')
 ```
 
 The file `ALL.chr6.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz` can be downloaded from 1000 Genomes through [FTP](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
