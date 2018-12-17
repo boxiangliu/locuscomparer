@@ -2,6 +2,7 @@
 
 export(assign_color)
 export(get_lead_snp)
+export(get_position)
 export(main)
 export(make_combined_plot)
 export(make_locuscatter)
@@ -9,4 +10,4 @@ export(make_locuszoom)
 export(read_metal)
 export(retrieve_LD)
 import(cowplot)
-importFrom(data.table,data.table)
+import(ggplot2)
