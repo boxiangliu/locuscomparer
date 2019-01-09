@@ -65,7 +65,7 @@ retrieve_LD = function(chr,snp,population){
 }
 
 #' @export
-get_position=function(x){
+get_position=function(x, genome = c('hg19','hg38')){
 
     data(config)
     on.exit(rm(config))
@@ -75,7 +75,9 @@ get_position=function(x){
 
     stopifnot('rsid' %in% colnames(x))
 
-    cmd = sprintf("select rsid, chr, pos from tkg_p3v5a where rsid in ('%s')",paste0(x$rsid,collapse="','"))
+    genome = match.arg(genome)
+
+    cmd = sprintf("select rsid, chr, pos from tkg_p3v5a_%s where rsid in ('%s')",genome,paste0(x$rsid,collapse="','"))
     res = DBI::dbGetQuery(conn = conn, statement = cmd)
     y=merge(x,res,by='rsid')
     return(y)
@@ -226,12 +228,12 @@ main = function(in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQTL
                  in_fn2, marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
                  snp = NULL, population = "EUR", combine = TRUE, legend = TRUE,
                  legend_position = c('bottomright','topright','topleft'),
-                 lz_ylab_linebreak = FALSE) {
+                 lz_ylab_linebreak = FALSE, genome = 'hg19') {
     d1 = read_metal(in_fn1, marker_col1, pval_col1)
     d2 = read_metal(in_fn2, marker_col2, pval_col2)
 
     merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
-    merged = get_position(merged)
+    merged = get_position(merged, genome)
 
     chr = unique(merged$chr)
     if (length(chr) != 1) stop('There must be one and only one chromosome.')
