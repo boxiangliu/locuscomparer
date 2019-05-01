@@ -7,7 +7,7 @@ pval_col1 = pval_col2 = 'pval'
 snp = NULL
 chr='6'
 population = 'EUR'
-
+title = 'GWAS'
 
 d1 = read_metal(in_fn1, marker_col = 'rsid', pval_col = 'pval')
 d2 = read_metal(in_fn2, marker_col = marker_col2, pval_col = pval_col2)

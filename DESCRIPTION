@@ -17,8 +17,8 @@ Imports: cowplot (>= 0.6.1),
     ggplot2 (>= 2.2.1),
     ggrepel (>= 0.6.5),
     stringr (>= 1.2.0),
-    DBI (>=1.0.0),
-    RMySQL (>=0.10.17),
-    rlang (>=0.3.1)
-RoxygenNote: 6.0.1
+    DBI (>= 1.0.0),
+    RMySQL (>= 0.10.17),
+    rlang (>= 0.3.1)
+RoxygenNote: 6.1.1
 Suggests: testthat

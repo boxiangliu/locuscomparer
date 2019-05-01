@@ -1,4 +1,4 @@
-context('Test main')
+context('Test locuscompare')
 
 in_fn1 = system.file('extdata','gwas.tsv', package = 'locuscomparer')
 in_fn2 = system.file('extdata','eqtl.tsv', package = 'locuscomparer')
@@ -12,6 +12,6 @@ legend = combine = TRUE
 lz_ylab_linebreak = FALSE
 legend_position = 'bottomright'
 
-p = main(in_fn1 = in_fn1, in_fn2 = in_fn2)
+p = locuscompare(in_fn1 = in_fn1, in_fn2 = in_fn2)
 p
 

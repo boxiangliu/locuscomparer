@@ -24,6 +24,6 @@ names(size) = merged$rsid
 
 merged$label = ifelse(merged$rsid == snp, merged$rsid, '')
 
-p = make_locuscatter(merged, title1 = 'GWAS', title2 = 'eQTL', color, shape,
+p = make_scatterplot(merged, title1 = 'GWAS', title2 = 'eQTL', color, shape,
                      size, legend = TRUE, legend_position = 'bottomright')
 p
