@@ -19,7 +19,7 @@ To illustrate the use of locuscompare, we use the GWAS dataset from Nikpay et al
 library(locuscomparer)
 gwas_fn = system.file('extdata','gwas.tsv', package = 'locuscomparer')
 eqtl_fn = system.file('extdata','eqtl.tsv', package = 'locuscomparer')
-main(in_fn1 = gwas_fn, in_fn2 = eqtl_fn, title1 = 'CAD GWAS', title2 = 'Coronary Artery eQTL')
+locuscompare(in_fn1 = gwas_fn, in_fn2 = eqtl_fn, title1 = 'CAD GWAS', title2 = 'Coronary Artery eQTL')
 ```
 
 The output from the `main` function is a figure like the following:
@@ -52,6 +52,29 @@ Then run the following commands:
 library(locuscomparer)
 gwas_fn = 'path/to/gwas.tsv'
 eqtl_fn = 'path/to/eqtl.tsv'
-main(in_fn1 = gwas_fn, in_fn2 = eqtl_fn, title = 'GWAS', title2 = 'eQTL')
+locuscompare(in_fn1 = gwas_fn, in_fn2 = eqtl_fn, title = 'GWAS', title2 = 'eQTL')
 ```
 
+## 4. Documentations
+
+To view documentation for each function, type ?[function name] in the R console. 
+
+LocusCompareR current export the following functions:
+
+**Data munging**
+
+- `assign_color`: Assign color to each SNP according to LD. 
+- `get_lead_snp`: Add a column of SNP labels to input data.frame.
+- `get_position`: Append two columns, chromosome (chr) and position (pos), to the input data.frame.
+
+**Plotting**
+
+- `locuscompare`: Make a locuscompare plot.
+- `make_combined_plot`: Generated a combined plot with two locuszoom plots and a locuscompare plot.
+- `make_locuszoom`: Make a simple locuszoom plot.
+- `make_scatterplot`: Make a scatter plot (called the LocusCompare plot)
+
+**Data loading**
+
+- `read_metal`" Read association summary statistics from file. 
+- `retrieve_LD`: Retrive SNP pairwise LD from database.
