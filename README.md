@@ -1,4 +1,4 @@
-# locuscomparer
+# LocusCompareR
 
 ## 1. Installation
 LocusCompareR is an R package for visualization of GWAS-eQTL colocalization events. 
