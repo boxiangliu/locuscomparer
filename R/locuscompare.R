@@ -358,10 +358,10 @@ make_combined_plot = function (merged, title1, title2, ld, chr, snp = NULL,
 
 #' Make a locuscompare plot.
 #' @param in_fn1 (string) Path to the input file for study 1.
+#' @param in_fn2 (string) Path to the input file for study 2.
 #' @param marker_col1 (string, optional) Name of the marker column. Default: 'rsid'.
 #' @param pval_col1 (string, optional) Name of the p-value column. Default: 'pval'.
 #' @param title1 (string) The title for the x-axis.
-#' @param in_fn2 (string) Path to the input file for study 2.
 #' @param marker_col2 (string, optional) Name of the marker column. Default: 'rsid'.
 #' @param pval_col2 (string, optional) Name of the p-value column. Default: 'pval'.
 #' @param title2 (string) The title for the y-axis.
@@ -378,8 +378,8 @@ make_combined_plot = function (merged, title1, title2, ld, chr, snp = NULL,
 #' in_fn2 = system.file('extdata','eqtl.tsv', package = 'locuscomparer')
 #' locuscompare(in_fn1 = in_fn1, in_fn2 = in_fn2)
 #' @export
-locuscompare = function(in_fn1, marker_col1 = "rsid", pval_col1 = "pval", title1 = "eQTL",
-                 in_fn2, marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
+locuscompare = function(in_fn1, in_fn2, marker_col1 = "rsid", pval_col1 = "pval",
+                 title1 = "eQTL",marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
                  snp = NULL, population = "EUR", combine = TRUE, legend = TRUE,
                  legend_position = c('bottomright','topright','topleft'),
                  lz_ylab_linebreak = FALSE, genome = c('hg19','hg38')) {
