@@ -4,8 +4,8 @@
 \alias{locuscompare}
 \title{Make a locuscompare plot.}
 \usage{
-locuscompare(in_fn1, marker_col1 = "rsid", pval_col1 = "pval",
-  title1 = "eQTL", in_fn2, marker_col2 = "rsid", pval_col2 = "pval",
+locuscompare(in_fn1, in_fn2, marker_col1 = "rsid", pval_col1 = "pval",
+  title1 = "eQTL", marker_col2 = "rsid", pval_col2 = "pval",
   title2 = "GWAS", snp = NULL, population = "EUR", combine = TRUE,
   legend = TRUE, legend_position = c("bottomright", "topright",
   "topleft"), lz_ylab_linebreak = FALSE, genome = c("hg19", "hg38"))
@@ -13,13 +13,13 @@ locuscompare(in_fn1, marker_col1 = "rsid", pval_col1 = "pval",
 \arguments{
 \item{in_fn1}{(string) Path to the input file for study 1.}
 
+\item{in_fn2}{(string) Path to the input file for study 2.}
+
 \item{marker_col1}{(string, optional) Name of the marker column. Default: 'rsid'.}
 
 \item{pval_col1}{(string, optional) Name of the p-value column. Default: 'pval'.}
 
 \item{title1}{(string) The title for the x-axis.}
-
-\item{in_fn2}{(string) Path to the input file for study 2.}
 
 \item{marker_col2}{(string, optional) Name of the marker column. Default: 'rsid'.}
 
