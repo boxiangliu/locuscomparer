@@ -152,7 +152,7 @@ assign_color=function(rsid,snp,ld){
 
     color = data.frame(rsid, stringsAsFactors = FALSE)
     color = merge(color, ld[, c('SNP_B', 'color')], by.x = 'rsid', by.y = 'SNP_B', all.x = TRUE)
-    color[is.na(color$color),'color'] = 'blue4'
+    color[is.na(color$color),'color'] = 'gray'
     if (snp %in% color$rsid){
         color[rsid == snp,'color'] = 'purple'
     } else {
