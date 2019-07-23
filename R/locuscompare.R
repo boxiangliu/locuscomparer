@@ -129,7 +129,7 @@ get_lead_snp = function(merged, snp = NULL){
     }
     else {
         if (!snp %in% merged$rsid) {
-            stop(sprintf("%s not found in the intersection of %s and %s", snp, in_fn1, in_fn2))
+            stop(sprintf("%s not found in the intersection of in_fn1 and in_fn2.", snp))
         }
     }
     return(as.character(snp))
