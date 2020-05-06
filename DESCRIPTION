@@ -1,7 +1,7 @@
 Package: locuscomparer
 Type: Package
 Title: locuscomparer: Visualization of GWAS-QTL Colocalization Events
-Version: 1.0.0-2
+Version: 1.0.0-3
 Authors@R: c( person('Boxiang','Liu', email = 'jollier.liu@gmail.com',
         role = c('aut','cre')), person('Michael','Gloudemans', email =
         'mgloud@stanford.edu', role = c('ctb')), person('Stephen',

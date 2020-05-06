@@ -29,6 +29,7 @@ Make a locuszoom plot.
 Details see http://locuszoom.org/.
 }
 \examples{
+\dontrun{  # clearly the function works but example setup is tricky
 in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
 in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
@@ -46,4 +47,5 @@ d1 = get_position(d1)
 ld = retrieve_LD(chr, snp, "AFR")
 color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
 make_locuszoom(d1, title = 'GWAS', chr, color, shape, size)
+}
 }

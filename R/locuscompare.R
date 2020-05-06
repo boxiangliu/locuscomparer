@@ -214,11 +214,19 @@ add_label = function(merged, snp){
 #' @examples
 #' # The data.frame `merged` comes from the example of `add_label()`.
 #' # The data.frame `color` comes from the example of `assign_color()`.
+#' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+#' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+#' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+#' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 #' snp = 'rs9349379'
 #' shape = ifelse(merged$rsid == snp, 23, 21)
 #' names(shape) = merged$rsid
 #' size = ifelse(merged$rsid == snp, 3, 2)
 #' names(size) = merged$rsid
+#' ld = retrieve_LD('6', 'rs9349379', 'AFR')
+#' color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
+#' merged = add_label(merged, snp)
 #' make_scatterplot(merged, title1 = 'GWAS', title2 = 'eQTL', color, shape, size)
 #' @export
 make_scatterplot = function (merged, title1, title2, color, shape, size, legend = TRUE, legend_position = c('bottomright','topright','topleft')) {
@@ -274,6 +282,7 @@ make_scatterplot = function (merged, title1, title2, color, shape, size, legend 
 #' @param ylab_linebreak (boolean, optional) Whether to break the line of y-axis. If FALSE, the y-axis title and '-log10(p-value)'
 #' will be on the same line. Default: FALSE.
 #' @examples
+#' \dontrun{  # clearly the function works but example setup is tricky
 #' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
 #' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
@@ -291,6 +300,7 @@ make_scatterplot = function (merged, title1, title2, color, shape, size, legend 
 #' ld = retrieve_LD(chr, snp, "AFR")
 #' color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
 #' make_locuszoom(d1, title = 'GWAS', chr, color, shape, size)
+#' }
 #' @export
 make_locuszoom=function(metal,title,chr,color,shape,size,ylab_linebreak=FALSE){
 
