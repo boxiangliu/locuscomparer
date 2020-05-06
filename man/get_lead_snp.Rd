@@ -26,7 +26,7 @@ from the two studies.
 in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
 in_fn_2 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
-d1 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
 merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 get_lead_snp(merged)
 }

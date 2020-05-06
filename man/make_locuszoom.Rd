@@ -5,8 +5,7 @@
 \title{Make a locuszoom plot.
 Details see http://locuszoom.org/.}
 \usage{
-make_locuszoom(metal, title, chr, color, shape, size,
-  ylab_linebreak = FALSE)
+make_locuszoom(metal, title, chr, color, shape, size, ylab_linebreak = FALSE)
 }
 \arguments{
 \item{metal}{(data.frame) input file with two column, rsID and p-value.

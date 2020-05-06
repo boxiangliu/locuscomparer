@@ -5,9 +5,18 @@
 \title{Generated a combined plot with two locuszoom plots and a locuscompare
 plot. Each locuszoom plot represent an association study.}
 \usage{
-make_combined_plot(merged, title1, title2, ld, chr, snp = NULL,
-  combine = TRUE, legend = TRUE, legend_position = c("bottomright",
-  "topright", "topleft"), lz_ylab_linebreak = FALSE)
+make_combined_plot(
+  merged,
+  title1,
+  title2,
+  ld,
+  chr,
+  snp = NULL,
+  combine = TRUE,
+  legend = TRUE,
+  legend_position = c("bottomright", "topright", "topleft"),
+  lz_ylab_linebreak = FALSE
+)
 }
 \arguments{
 \item{merged}{(data.frame) An input data.frame which has the following
