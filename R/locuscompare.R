@@ -270,6 +270,7 @@ make_scatterplot = function (merged, title1, title2, color, shape, size, legend 
 #' size = ifelse(merged$rsid == snp, 3, 2)
 #' names(size) = merged$rsid
 #' chr = '6'
+#' d1 = get_position(d1)
 #' make_locuszoom(d1, title = 'GWAS', chr, color, shape, size)
 #' @export
 make_locuszoom=function(metal,title,chr,color,shape,size,ylab_linebreak=FALSE){
