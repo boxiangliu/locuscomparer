@@ -15,7 +15,8 @@ make_combined_plot(
   combine = TRUE,
   legend = TRUE,
   legend_position = c("bottomright", "topright", "topleft"),
-  lz_ylab_linebreak = FALSE
+  lz_ylab_linebreak = FALSE,
+  genome = "hg19"
 )
 }
 \arguments{
@@ -41,7 +42,9 @@ three plots will be returned. Default: TRUE.}
 
 \item{legend_position}{(string, optional) Either 'bottomright','topright', or 'topleft'. Default: 'bottomright'.}
 
-\item{lz_ylab_linebreak}{(boolean, optional) Whether to break the line of y-axis of the locuszoom plot.
+\item{lz_ylab_linebreak}{(boolean, optional) Whether to break the line of y-axis of the locuszoom plot.}
+
+\item{genome}{character(1) for get_position
 If FALSE, the y-axis title and '-log10(p-value)'. will be on the same line. Default: FALSE.}
 }
 \description{
@@ -49,7 +52,14 @@ Generated a combined plot with two locuszoom plots and a locuscompare
 plot. Each locuszoom plot represent an association study.
 }
 \examples{
-# The data.frame `merged` comes from the example of `add_label()`.
-# the data.frame `ld` comes from the example for `retrieve_LD()`.
+in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
+snp = 'rs9349379'
+merged = add_label(merged, snp)
+chr = '6' 
+ld = retrieve_LD(chr, snp, "AFR")
 make_combined_plot(merged, 'GWAS', 'eQTL', ld, chr)
 }

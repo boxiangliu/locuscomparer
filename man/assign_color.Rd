@@ -20,5 +20,11 @@ Assign color to each SNP according to LD.
 \examples{
 # the data.frame merged comes from the example for `get_lead_snp()`.
 # the data.frame ld comes from the example for `retrieve_LD()`.
+in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
+ld = retrieve_LD('6', 'rs9349379', 'AFR')
 color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
 }

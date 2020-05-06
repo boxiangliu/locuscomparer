@@ -29,13 +29,21 @@ Make a locuszoom plot.
 Details see http://locuszoom.org/.
 }
 \examples{
-# The data.frame `d1` comes from the example of `read_metal()`,
-# The data.frame `color` comes from the example of `assign_color()`.
+in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 snp = 'rs9349379'
+merged = add_label(merged, snp)
+d1 = add_label(d1, snp)
 shape = ifelse(merged$rsid == snp, 23, 21)
 names(shape) = merged$rsid
 size = ifelse(merged$rsid == snp, 3, 2)
 names(size) = merged$rsid
 chr = '6'
+d1 = get_position(d1)
+ld = retrieve_LD(chr, snp, "AFR")
+color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
 make_locuszoom(d1, title = 'GWAS', chr, color, shape, size)
 }

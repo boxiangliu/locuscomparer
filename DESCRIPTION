@@ -1,11 +1,12 @@
 Package: locuscomparer
 Type: Package
 Title: locuscomparer: Visualization of GWAS-QTL Colocalization Events
-Version: 1.0.0-1
-Author@R: c(
-    person('Boxiang','Liu', email = 'jollier.liu@gmail.com', role = c('aut','cre')),
-    person('Michael','Gloudemans', email = 'mgloud@stanford.edu', role = c('ctb'),
-    person('Stephen', 'Montgomery', email = 'smontgom@stanford.edu', role = c('ctb')))
+Version: 1.0.0-2
+Authors@R: c( person('Boxiang','Liu', email = 'jollier.liu@gmail.com',
+        role = c('aut','cre')), person('Michael','Gloudemans', email =
+        'mgloud@stanford.edu', role = c('ctb')), person('Stephen',
+        'Montgomery', email = 'smontgom@stanford.edu', role =
+        c('ctb')))
 Description: locuscomparer is the standalone version of the LocusCompare 
     webserver (www.locuscompare.ml:3838). locuscomparer performs visualization 
     of colocalization of summary statistics from pairs of association datasets 
@@ -13,12 +14,11 @@ Description: locuscomparer is the standalone version of the LocusCompare
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: cowplot (>= 0.6.1),
-    ggplot2 (>= 2.2.1),
-    ggrepel (>= 0.6.5),
-    stringr (>= 1.2.0),
-    DBI (>= 1.0.0),
-    RMySQL (>= 0.10.17),
-    rlang (>= 0.3.1)
+Depends: R (>= 3.6)
+Imports: cowplot (>= 0.6.1), ggplot2 (>= 2.2.1), ggrepel (>= 0.6.5),
+        stringr (>= 1.2.0), DBI (>= 1.0.0), RMySQL (>= 0.10.17), rlang
+        (>= 0.3.1)
 RoxygenNote: 7.1.0
 Suggests: testthat
+NeedsCompilation: no
+Packaged: 2020-05-06 17:38:45 UTC; stvjc

@@ -39,6 +39,7 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
 #' @examples
 #' in_fn = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn, marker_col = 'rsid', pval_col = 'pval')
+#' genome = "hg19"
 #' get_position(d1, genome)
 #' @export
 get_position=function(x, genome = c('hg19','hg38')){
@@ -118,7 +119,7 @@ retrieve_LD = function(chr,snp,population){
 #' # Select the lead SNP
 #' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
-#' in_fn_2 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
 #' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
 #' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 #' get_lead_snp(merged)
@@ -143,10 +144,15 @@ get_lead_snp = function(merged, snp = NULL){
 #' @examples
 #' # the data.frame merged comes from the example for `get_lead_snp()`.
 #' # the data.frame ld comes from the example for `retrieve_LD()`.
+#' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+#' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+#' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+#' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
+#' ld = retrieve_LD('6', 'rs9349379', 'AFR')
 #' color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
 #' @export
 assign_color=function(rsid,snp,ld){
-
     ld = ld[ld$SNP_A==snp,]
     ld$color = as.character(cut(ld$R2,breaks=c(0,0.2,0.4,0.6,0.8,1), labels=c('blue4','skyblue','darkgreen','orange','red'), include.lowest=TRUE))
 
@@ -174,7 +180,13 @@ assign_color=function(rsid,snp,ld){
 #' this can also be a single string.
 #' @examples
 #' # The data.frame merged comes from the example for `get_lead_snp()`.
+#' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+#' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+#' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+#' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 #' merged = add_label(merged, 'rs9349379')
+#' @export
 add_label = function(merged, snp){
     merged$label = ifelse(merged$rsid %in% snp, merged$rsid, '')
     return(merged)
@@ -262,15 +274,22 @@ make_scatterplot = function (merged, title1, title2, color, shape, size, legend 
 #' @param ylab_linebreak (boolean, optional) Whether to break the line of y-axis. If FALSE, the y-axis title and '-log10(p-value)'
 #' will be on the same line. Default: FALSE.
 #' @examples
-#' # The data.frame `d1` comes from the example of `read_metal()`,
-#' # The data.frame `color` comes from the example of `assign_color()`.
+#' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+#' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+#' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+#' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 #' snp = 'rs9349379'
+#' merged = add_label(merged, snp)
+#' d1 = add_label(d1, snp)
 #' shape = ifelse(merged$rsid == snp, 23, 21)
 #' names(shape) = merged$rsid
 #' size = ifelse(merged$rsid == snp, 3, 2)
 #' names(size) = merged$rsid
 #' chr = '6'
 #' d1 = get_position(d1)
+#' ld = retrieve_LD(chr, snp, "AFR")
+#' color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
 #' make_locuszoom(d1, title = 'GWAS', chr, color, shape, size)
 #' @export
 make_locuszoom=function(metal,title,chr,color,shape,size,ylab_linebreak=FALSE){
@@ -311,20 +330,26 @@ make_locuszoom=function(metal,title,chr,color,shape,size,ylab_linebreak=FALSE){
 #' @param legend (boolean, optional) Should the legend be shown? Default: TRUE.
 #' @param legend_position (string, optional) Either 'bottomright','topright', or 'topleft'. Default: 'bottomright'.
 #' @param lz_ylab_linebreak (boolean, optional) Whether to break the line of y-axis of the locuszoom plot.
+#' @param genome character(1) for get_position
 #' If FALSE, the y-axis title and '-log10(p-value)'. will be on the same line. Default: FALSE.
 #' @examples
-#' # The data.frame `merged` comes from the example of `add_label()`.
-#' # the data.frame `ld` comes from the example for `retrieve_LD()`.
+#' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+#' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+#' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+#' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
+#' snp = 'rs9349379'
+#' merged = add_label(merged, snp)
+#' chr = '6' 
+#' ld = retrieve_LD(chr, snp, "AFR")
 #' make_combined_plot(merged, 'GWAS', 'eQTL', ld, chr)
 #' @export
 make_combined_plot = function (merged, title1, title2, ld, chr, snp = NULL,
                                combine = TRUE, legend = TRUE,
                                legend_position = c('bottomright','topright','topleft'),
-                               lz_ylab_linebreak=FALSE) {
-
+                               lz_ylab_linebreak=FALSE, genome="hg19") {
     snp = get_lead_snp(merged, snp)
     # print(sprintf("INFO - %s", snp))
-
     color = assign_color(merged$rsid, snp, ld)
 
     shape = ifelse(merged$rsid == snp, 23, 21)
@@ -334,6 +359,7 @@ make_combined_plot = function (merged, title1, title2, ld, chr, snp = NULL,
     names(size) = merged$rsid
 
     merged = add_label(merged, snp)
+    if (!("pos" %in% names(merged))) merged = get_position(merged, genome)
 
     p1 = make_scatterplot(merged, title1, title2, color,
                           shape, size, legend, legend_position)
