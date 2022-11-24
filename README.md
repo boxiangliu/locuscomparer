@@ -79,7 +79,7 @@ LocusCompareR current export the following functions:
 - `read_metal`" Read association summary statistics from file. 
 - `retrieve_LD`: Retrive SNP pairwise LD from database.
 
-**Citation**
+## 5. Citation
 
 If you use locuscompare, please cite the following paper: https://www.nature.com/articles/s41588-019-0404-0
 
