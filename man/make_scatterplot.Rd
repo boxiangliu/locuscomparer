@@ -8,9 +8,16 @@ an association study. Each point thus represent a SNP. By default, the lead SNP
 is a purple diamond, whereas the other SNPs are colored according to
 their LD with the lead SNP.}
 \usage{
-make_scatterplot(merged, title1, title2, color, shape, size,
-  legend = TRUE, legend_position = c("bottomright", "topright",
-  "topleft"))
+make_scatterplot(
+  merged,
+  title1,
+  title2,
+  color,
+  shape,
+  size,
+  legend = TRUE,
+  legend_position = c("bottomright", "topright", "topleft")
+)
 }
 \arguments{
 \item{merged}{(data.frame) An input data.frame which has the following
@@ -42,10 +49,18 @@ their LD with the lead SNP.
 \examples{
 # The data.frame `merged` comes from the example of `add_label()`.
 # The data.frame `color` comes from the example of `assign_color()`.
+in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
+d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
+in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 snp = 'rs9349379'
 shape = ifelse(merged$rsid == snp, 23, 21)
 names(shape) = merged$rsid
 size = ifelse(merged$rsid == snp, 3, 2)
 names(size) = merged$rsid
+ld = retrieve_LD('6', 'rs9349379', 'AFR')
+color = assign_color(rsid = merged$rsid, snp = 'rs9349379', ld)
+merged = add_label(merged, snp)
 make_scatterplot(merged, title1 = 'GWAS', title2 = 'eQTL', color, shape, size)
 }
