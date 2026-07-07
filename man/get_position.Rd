@@ -17,5 +17,8 @@ Append two columns, chromosome (chr) and position (pos), to the input data.frame
 \examples{
 in_fn = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 d1 = read_metal(in_fn, marker_col = 'rsid', pval_col = 'pval')
-get_position(d1, genome)
+\dontrun{
+# get_position() queries a remote database, so it requires network access:
+get_position(d1, genome = 'hg19')
+}
 }
