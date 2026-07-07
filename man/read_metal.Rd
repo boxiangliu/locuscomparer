@@ -6,7 +6,7 @@
 The file must contain 2 columns: markers, i.e SNPs, and p-value.
 The marker column should contain SNP rsIDs.}
 \usage{
-read_metal(in_fn, marker_col = "rsid", pval_col = "pval")
+read_metal(in_fn, marker_col = "rsid", pval_col = "pval", logp_col = NULL)
 }
 \arguments{
 \item{in_fn}{(string) Path to the input file.}
@@ -14,6 +14,11 @@ read_metal(in_fn, marker_col = "rsid", pval_col = "pval")
 \item{marker_col}{(string, optional) Name of the marker column. Default: 'rsid'.}
 
 \item{pval_col}{(string, optional) Name of the p-value column. Default: 'pval'.}
+
+\item{logp_col}{(string, optional) Name of a pre-computed -log10(p-value) column.
+If supplied it is used directly (bypassing the p-value), which avoids the
+underflow that turns extremely small p-values into Inf; \code{pval} is set to NA.
+Default: NULL.}
 }
 \description{
 Read association summary statistics from file and append column.

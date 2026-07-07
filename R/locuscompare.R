@@ -5,30 +5,48 @@
 #' @param in_fn (string) Path to the input file.
 #' @param marker_col (string, optional) Name of the marker column. Default: 'rsid'.
 #' @param pval_col (string, optional) Name of the p-value column. Default: 'pval'.
+#' @param logp_col (string, optional) Name of a pre-computed -log10(p-value) column.
+#'   If supplied it is used directly (bypassing the p-value), which avoids the
+#'   underflow that turns extremely small p-values into Inf; `pval` is set to NA.
+#'   Default: NULL.
 #' @examples
 #' in_fn = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn, marker_col = 'rsid', pval_col = 'pval')
 #' @export
-read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
+read_metal=function(in_fn,marker_col='rsid',pval_col='pval',logp_col=NULL){
     # message('Reading ', in_fn)
 
     if (is.character(in_fn)){
-
         d = read.table(in_fn, header = TRUE, stringsAsFactors = FALSE)
-        colnames(d)[which(colnames(d) == marker_col)] = 'rsid'
-        colnames(d)[which(colnames(d) == pval_col)] = 'pval'
-
     } else if (is.data.frame(in_fn)){
-
         d = in_fn
-
     } else {
-
         stop('The argument "in_fn" must be a string or a data.frame')
-
     }
 
-    d$logp = -log10(d$pval)
+    colnames(d)[which(colnames(d) == marker_col)] = 'rsid'
+
+    if (!is.null(logp_col)){
+        if (!logp_col %in% colnames(d)) stop(sprintf('Column "%s" (logp_col) not found.', logp_col))
+        logp = as.numeric(d[[logp_col]])
+        if (any(!is.finite(logp) | logp < 0, na.rm = TRUE)) stop('logp values must be finite and non-negative.')
+        pval = NA_real_
+    } else {
+        if (!pval_col %in% colnames(d)) stop(sprintf('Column "%s" (pval_col) not found.', pval_col))
+        pval = as.numeric(d[[pval_col]])
+        if (any(pval < 0 | pval > 1, na.rm = TRUE)) stop('p-values must be between 0 and 1.')
+        logp = -log10(pval)
+        n_floored = sum(is.infinite(logp))
+        if (n_floored > 0){
+            logp[is.infinite(logp)] = -log10(.Machine$double.xmin)
+            warning(sprintf('%d p-value(s) were 0 (underflow); flooring -log10(p) at %.1f.',
+                            n_floored, -log10(.Machine$double.xmin)))
+        }
+    }
+
+    d$rsid = as.character(d$rsid)
+    d$pval = pval
+    d$logp = logp
     return(d[,c('rsid','pval','logp')])
 }
 
@@ -130,7 +148,13 @@ retrieve_LD = function(chr,snp,population){
 #' @export
 get_lead_snp = function(merged, snp = NULL){
     if (is.null(snp)) {
-        snp = merged[which.min(merged$pval1 + merged$pval2), 'rsid']
+        # Prefer the historical min(pval1 + pval2) rule, but fall back to
+        # max(logp1 + logp2) when p-values are unusable (NA from z-score/logp
+        # input, or 0 from underflow), where the p-value sum would be degenerate.
+        use_pval = !anyNA(merged$pval1) && !anyNA(merged$pval2) &&
+                   all(merged$pval1 > 0) && all(merged$pval2 > 0)
+        snp = if (use_pval) merged[which.min(merged$pval1 + merged$pval2), 'rsid']
+              else          merged[which.max(merged$logp1 + merged$logp2), 'rsid']
     }
     else {
         if (!snp %in% merged$rsid) {
