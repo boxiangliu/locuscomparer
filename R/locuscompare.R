@@ -39,7 +39,10 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval'){
 #' @examples
 #' in_fn = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn, marker_col = 'rsid', pval_col = 'pval')
-#' get_position(d1, genome)
+#' \dontrun{
+#' # get_position() queries a remote database, so it requires network access:
+#' get_position(d1, genome = 'hg19')
+#' }
 #' @export
 get_position=function(x, genome = c('hg19','hg38')){
 
@@ -120,8 +123,8 @@ retrieve_LD = function(chr,snp,population){
 #' # Select the lead SNP
 #' in_fn_1 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn_1, marker_col = 'rsid', pval_col = 'pval')
-#' in_fn_2 = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
-#' d1 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
+#' in_fn_2 = system.file('extdata', 'eqtl.tsv', package = 'locuscomparer')
+#' d2 = read_metal(in_fn_2, marker_col = 'rsid', pval_col = 'pval')
 #' merged = merge(d1, d2, by = "rsid", suffixes = c("1", "2"), all = FALSE)
 #' get_lead_snp(merged)
 #' @export
@@ -156,7 +159,7 @@ assign_color=function(rsid,snp,ld){
     color = merge(color, ld[, c('SNP_B', 'color')], by.x = 'rsid', by.y = 'SNP_B', all.x = TRUE)
     color[is.na(color$color),'color'] = 'blue4'
     if (snp %in% color$rsid){
-        color[rsid == snp,'color'] = 'purple'
+        color[color$rsid == snp,'color'] = 'purple'
     } else {
         color = rbind(color, data.frame(rsid = snp, color = 'purple'))
     }
