@@ -46,7 +46,8 @@ get_position=function(x, genome = c('hg19','hg38')){
     data(config)
     on.exit(rm(config))
 
-    conn = RMySQL::dbConnect(RMySQL::MySQL(),"locuscompare",config$b,config$c,config$a)
+    conn = RMySQL::dbConnect(RMySQL::MySQL(), dbname = config$e, username = config$b,
+                             password = config$c, host = config$a, port = config$d)
     on.exit(RMySQL::dbDisconnect(conn))
 
     stopifnot('rsid' %in% colnames(x))
@@ -75,7 +76,8 @@ retrieve_LD = function(chr,snp,population){
     data(config)
     on.exit(rm(config))
 
-    conn = RMySQL::dbConnect(RMySQL::MySQL(),"locuscompare",config$b,config$c,config$a)
+    conn = RMySQL::dbConnect(RMySQL::MySQL(), dbname = config$e, username = config$b,
+                             password = config$c, host = config$a, port = config$d)
     on.exit(RMySQL::dbDisconnect(conn))
 
     res1 = DBI::dbGetQuery(
