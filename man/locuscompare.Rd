@@ -8,7 +8,8 @@ locuscompare(in_fn1, in_fn2, marker_col1 = "rsid", pval_col1 = "pval",
   title1 = "eQTL", marker_col2 = "rsid", pval_col2 = "pval",
   title2 = "GWAS", snp = NULL, population = "EUR", combine = TRUE,
   legend = TRUE, legend_position = c("bottomright", "topright",
-  "topleft"), lz_ylab_linebreak = FALSE, genome = c("hg19", "hg38"))
+  "topleft"), lz_ylab_linebreak = FALSE, genome = c("hg19", "hg38"),
+  ld = NULL)
 }
 \arguments{
 \item{in_fn1}{(string) Path to the input file for study 1.}
@@ -41,6 +42,11 @@ three plots will be returned. Default: TRUE.}
 \item{lz_ylab_linebreak}{(boolean, optional) Whether to break the line of y-axis of the locuszoom plot.}
 
 \item{genome}{(string, optional) Genome assembly, either 'hg19' or 'hg38'. Default: 'hg19'.}
+
+\item{ld}{(data.frame, optional) Supply your own LD instead of querying the reference
+database: a data.frame with columns SNP_A, SNP_B, R2, where SNP_A is the lead \code{snp}.
+When given, \code{retrieve_LD()} is skipped and \code{population} is ignored; \code{snp}
+is required. Default: NULL.}
 }
 \description{
 Make a locuscompare plot.
