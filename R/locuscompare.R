@@ -413,6 +413,10 @@ make_combined_plot = function (merged, title1, title2, ld, chr, snp = NULL,
 #' @param legend_position (string, optional) Either 'bottomright','topright', or 'topleft'. Default: 'bottomright'.
 #' @param lz_ylab_linebreak (boolean, optional) Whether to break the line of y-axis of the locuszoom plot.
 #' @param genome (string, optional) Genome assembly, either 'hg19' or 'hg38'. Default: 'hg19'.
+#' @param ld (data.frame, optional) Supply your own LD instead of querying the reference
+#'   database: a data.frame with columns SNP_A, SNP_B, R2, where SNP_A is the lead `snp`.
+#'   When given, `retrieve_LD()` is skipped and `population` is ignored; `snp` is required.
+#'   Default: NULL.
 #' @examples
 #' in_fn1 = system.file('extdata','gwas.tsv', package = 'locuscomparer')
 #' in_fn2 = system.file('extdata','eqtl.tsv', package = 'locuscomparer')
@@ -422,7 +426,17 @@ locuscompare = function(in_fn1, in_fn2, marker_col1 = "rsid", pval_col1 = "pval"
                  title1 = "eQTL",marker_col2 = "rsid", pval_col2 = "pval", title2 = "GWAS",
                  snp = NULL, population = "EUR", combine = TRUE, legend = TRUE,
                  legend_position = c('bottomright','topright','topleft'),
-                 lz_ylab_linebreak = FALSE, genome = c('hg19','hg38')) {
+                 lz_ylab_linebreak = FALSE, genome = c('hg19','hg38'), ld = NULL) {
+
+    if (!is.null(ld)) {
+        if (is.null(snp))
+            stop("When supplying 'ld', you must also specify the lead 'snp' the LD is relative to.")
+        if (!is.data.frame(ld) || !all(c('SNP_A','SNP_B','R2') %in% colnames(ld)))
+            stop("'ld' must be a data.frame with columns SNP_A, SNP_B, R2.")
+        if (!snp %in% ld$SNP_A)
+            warning(sprintf("None of the supplied LD rows have SNP_A == '%s'; all SNPs will be colored as low-LD.", snp))
+    }
+
     d1 = read_metal(in_fn1, marker_col1, pval_col1)
     d2 = read_metal(in_fn2, marker_col2, pval_col2)
 
@@ -434,7 +448,7 @@ locuscompare = function(in_fn1, in_fn2, marker_col1 = "rsid", pval_col1 = "pval"
     if (length(chr) != 1) stop('There must be one and only one chromosome.')
 
     snp = get_lead_snp(merged, snp)
-    ld = retrieve_LD(chr, snp, population)
+    if (is.null(ld)) ld = retrieve_LD(chr, snp, population)
     p = make_combined_plot(merged, title1, title2, ld, chr, snp, combine,
                            legend, legend_position, lz_ylab_linebreak)
     return(p)
