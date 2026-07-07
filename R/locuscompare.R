@@ -5,6 +5,9 @@
 #' @param in_fn (string) Path to the input file.
 #' @param marker_col (string, optional) Name of the marker column. Default: 'rsid'.
 #' @param pval_col (string, optional) Name of the p-value column. Default: 'pval'.
+#' @param zscore_col (string, optional) Name of a z-score column. If supplied, the
+#'   two-sided -log10(p-value) is computed from it in a numerically stable way that
+#'   does not underflow for large |z|; `pval` is set to NA. Default: NULL.
 #' @param logp_col (string, optional) Name of a pre-computed -log10(p-value) column.
 #'   If supplied it is used directly (bypassing the p-value), which avoids the
 #'   underflow that turns extremely small p-values into Inf; `pval` is set to NA.
@@ -13,7 +16,7 @@
 #' in_fn = system.file('extdata', 'gwas.tsv', package = 'locuscomparer')
 #' d1 = read_metal(in_fn, marker_col = 'rsid', pval_col = 'pval')
 #' @export
-read_metal=function(in_fn,marker_col='rsid',pval_col='pval',logp_col=NULL){
+read_metal=function(in_fn,marker_col='rsid',pval_col='pval',zscore_col=NULL,logp_col=NULL){
     # message('Reading ', in_fn)
 
     if (is.character(in_fn)){
@@ -26,7 +29,15 @@ read_metal=function(in_fn,marker_col='rsid',pval_col='pval',logp_col=NULL){
 
     colnames(d)[which(colnames(d) == marker_col)] = 'rsid'
 
-    if (!is.null(logp_col)){
+    if (sum(!is.null(zscore_col), !is.null(logp_col)) > 1)
+        stop('Supply only one of zscore_col or logp_col.')
+
+    if (!is.null(zscore_col)){
+        if (!zscore_col %in% colnames(d)) stop(sprintf('Column "%s" (zscore_col) not found.', zscore_col))
+        z = as.numeric(d[[zscore_col]])
+        logp = -(pnorm(-abs(z), log.p = TRUE) + log(2)) / log(10)
+        pval = NA_real_
+    } else if (!is.null(logp_col)){
         if (!logp_col %in% colnames(d)) stop(sprintf('Column "%s" (logp_col) not found.', logp_col))
         logp = as.numeric(d[[logp_col]])
         if (any(!is.finite(logp) | logp < 0, na.rm = TRUE)) stop('logp values must be finite and non-negative.')

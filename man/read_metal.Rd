@@ -6,7 +6,8 @@
 The file must contain 2 columns: markers, i.e SNPs, and p-value.
 The marker column should contain SNP rsIDs.}
 \usage{
-read_metal(in_fn, marker_col = "rsid", pval_col = "pval", logp_col = NULL)
+read_metal(in_fn, marker_col = "rsid", pval_col = "pval",
+  zscore_col = NULL, logp_col = NULL)
 }
 \arguments{
 \item{in_fn}{(string) Path to the input file.}
@@ -14,6 +15,10 @@ read_metal(in_fn, marker_col = "rsid", pval_col = "pval", logp_col = NULL)
 \item{marker_col}{(string, optional) Name of the marker column. Default: 'rsid'.}
 
 \item{pval_col}{(string, optional) Name of the p-value column. Default: 'pval'.}
+
+\item{zscore_col}{(string, optional) Name of a z-score column. If supplied, the
+two-sided -log10(p-value) is computed from it in a numerically stable way that
+does not underflow for large |z|; \code{pval} is set to NA. Default: NULL.}
 
 \item{logp_col}{(string, optional) Name of a pre-computed -log10(p-value) column.
 If supplied it is used directly (bypassing the p-value), which avoids the
