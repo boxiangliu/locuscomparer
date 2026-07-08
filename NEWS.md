@@ -22,7 +22,7 @@
 * The LD and position database has moved to a new server; reinstall to pick up
   the new connection settings (#35).
 
-# Version 1.0.0:
+# Version 1.0.0 (2019-05-02):
 Much faster LD calculation (querying a MySQL database).
 
 # Version 0.1.0:
