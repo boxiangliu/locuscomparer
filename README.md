@@ -1,5 +1,9 @@
 # LocusCompareR
 
+## News
+
+**v1.1.0** — `read_metal()` now accepts z-scores (`zscore_col`) and pre-computed `-log10(p)` (`logp_col`), and gracefully floors p-values that underflow to `0`; `locuscompare()` accepts a user-supplied LD table via `ld=` for custom or multi-ancestry panels. See [NEWS.md](NEWS.md) for the full changelog.
+
 ## 1. Installation
 LocusCompareR is an R package for visualization of GWAS-eQTL colocalization events. 
 
