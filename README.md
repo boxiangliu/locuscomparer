@@ -1,5 +1,7 @@
 # LocusCompareR <img src="man/figures/logo.png" align="right" height="139" alt="locuscompare hex logo" />
 
+> 🐍 **Python users:** a port is available at [**locuscomparepy**](https://github.com/boxiangliu/locuscomparepy).
+
 ## News
 
 - **v1.1.0** (2026-07-08) — `read_metal()` accepts z-scores (`zscore_col`) and pre-computed `-log10(p)` (`logp_col`), and gracefully floors p-values that underflow to `0`; `locuscompare()` accepts a user-supplied LD table via `ld=` for custom or multi-ancestry panels.
