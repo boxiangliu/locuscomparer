@@ -1,4 +1,4 @@
-# Version 1.1.0:
+# Version 1.1.0 (2026-07-08):
 
 ## New features
 * `read_metal()` now accepts a z-score column via `zscore_col`, computing a
